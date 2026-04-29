@@ -67,7 +67,7 @@ Notes/
 ## Manual installation
 
 1. Download the latest release (`main.js`, `styles.css`, `manifest.json`)
-2. Copy them to `<your-vault>/.obsidian/plugins/noter-obsidian-plugin/`
+2. Copy them to `<your-vault>/.obsidian/plugins/noter/`
 3. Enable the plugin in **Settings → Community plugins**
 
 ---
@@ -75,12 +75,12 @@ Notes/
 ## Development
 
 ```bash
-git clone https://github.com/pietrotommasini2022/noter-obsidian
-cd noter-obsidian
+git clone https://github.com/pietrotommasini2022/noter
+cd noter
 npm install --legacy-peer-deps
 
 # Development (watch mode + auto-copy to test vault)
-OBSIDIAN_VAULT_PLUGIN_PATH="/path/to/vault/.obsidian/plugins/noter-obsidian-plugin" npm run dev
+OBSIDIAN_VAULT_PLUGIN_PATH="/path/to/vault/.obsidian/plugins/noter" npm run dev
 
 # Production build
 npm run build

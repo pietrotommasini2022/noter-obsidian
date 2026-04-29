@@ -1,11 +1,11 @@
 {
-  "id": "noter-obsidian-plugin",
+  "id": "noter",
   "name": "Noter",
   "version": "1.0.0",
   "minAppVersion": "1.0.0",
   "description": "AI-powered academic note-taking plugin for Obsidian. Transform raw lecture notes into structured study material using your own Gemini API key.",
   "author": "pietrotommasini",
-  "authorUrl": "https://github.com/pietrotommasini2022/noter-obsidian",
+  "authorUrl": "https://github.com/pietrotommasini2022",
   "fundingUrl": "",
   "isDesktopOnly": false
 }
