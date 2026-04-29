@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+/*
+  Scope all Tailwind utility classes under .noter-plugin-container
+  to avoid resetting or conflicting with Obsidian's global styles.
+*/
+@layer base {
+  .noter-plugin-container {
+    /* Typography */
+    --font-body: "Crimson Pro", Georgia, serif;
+    --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+    /* Colors — fall back to Obsidian CSS variables when available */
+    --noter-bg:          var(--background-primary, #0f0f0d);
+    --noter-surface:     var(--background-secondary, #161614);
+    --noter-border:      var(--background-modifier-border, #2a2a26);
+    --noter-text:        var(--text-normal, #e8e4d8);
+    --noter-text-dim:    var(--text-muted, #4a4a44);
+    --noter-accent:      var(--interactive-accent, #7c6f5a);
+  }
+}
+
+/* Google Fonts — loaded dynamically so they work both online and in the bundle */
+@import url("https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@import "./globals.css";

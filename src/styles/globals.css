@@ -1,0 +1,97 @@
+/*
+  noter Obsidian Plugin — Global Styles
+  Scoped entirely under .noter-plugin-container to avoid
+  bleeding into Obsidian's native UI.
+*/
+
+.noter-plugin-container {
+  /* ── Font imports (dynamic for offline/mobile compat) ── */
+  font-family: "Crimson Pro", Georgia, serif;
+}
+
+/* ── Shared button classes ── */
+.noter-plugin-container .noter-btn {
+  border: 1px solid var(--noter-border, #2a2a26);
+  background: transparent;
+  color: var(--noter-text-dim, #4a4a44);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.noter-plugin-container .noter-btn:hover {
+  color: var(--noter-text, #e8e4d8);
+  border-color: var(--noter-text-dim, #4a4a44);
+}
+
+.noter-plugin-container .noter-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.noter-plugin-container .noter-btn-deploy {
+  border-color: var(--noter-accent, #7c6f5a);
+  color: var(--noter-accent, #7c6f5a);
+}
+
+.noter-plugin-container .noter-btn-deploy:hover {
+  background: color-mix(in srgb, var(--noter-accent, #7c6f5a) 10%, transparent);
+}
+
+.noter-plugin-container .noter-btn-save {
+  border-color: #6dbb8a;
+  color: #6dbb8a;
+}
+
+.noter-plugin-container .noter-btn-save:hover {
+  background: rgba(109, 187, 138, 0.1);
+}
+
+/* ── Terminal cursor blink ── */
+.noter-plugin-container .terminal-cursor::after {
+  content: "▌";
+  animation: noter-blink 1s step-end infinite;
+  margin-left: 1px;
+}
+
+@keyframes noter-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── CodeMirror editor fill ── */
+.noter-plugin-container .noter-editor,
+.noter-plugin-container .noter-editor .cm-editor {
+  height: 100%;
+  min-height: 0;
+}
+
+.noter-plugin-container .noter-editor .cm-scroller {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* ── Wikilink chip in preview ── */
+.noter-plugin-container .wikilink {
+  color: #c084fc;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ── Highlighted gaps ==text== ── */
+.noter-plugin-container mark {
+  background-color: rgba(201, 168, 112, 0.25);
+  color: #c9a870;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+/* ── Thin scrollbars ── */
+.noter-plugin-container ::-webkit-scrollbar { width: 4px; height: 4px; }
+.noter-plugin-container ::-webkit-scrollbar-track { background: transparent; }
+.noter-plugin-container ::-webkit-scrollbar-thumb { background: var(--noter-border, #2a2a26); border-radius: 2px; }
