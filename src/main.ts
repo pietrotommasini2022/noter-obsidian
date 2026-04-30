@@ -5,7 +5,7 @@
  *  - Load settings from data.json on startup
  *  - Register the noter ItemView
  *  - Add a ribbon icon + command to open/focus the noter pane
- *  - Save settings and unmount React on unload
+ *  - Preserve the user's noter leaf placement across reloads
  */
 
 import { Plugin } from "obsidian";
@@ -36,8 +36,8 @@ export default class NoterPlugin extends Plugin {
 
     // ── Command palette ────────────────────────────────────────────────────
     this.addCommand({
-      id: "open-noter",
-      name: "Open noter",
+      id: "open",
+      name: "Open",
       callback: () => void this.activateView(),
     });
 
@@ -51,11 +51,6 @@ export default class NoterPlugin extends Plugin {
     }
   }
 
-  onunload(): void {
-    // Detach all noter leaves — their onClose() will unmount React
-    this.app.workspace.detachLeavesOfType(NOTER_VIEW_TYPE);
-  }
-
   /** Opens noter as a full-width tab in the main content area, or focuses it if already open. */
   async activateView(): Promise<void> {
     const { workspace } = this.app;
@@ -63,13 +58,13 @@ export default class NoterPlugin extends Plugin {
     // Reuse existing leaf if available
     const existingLeaves = workspace.getLeavesOfType(NOTER_VIEW_TYPE);
     if (existingLeaves.length > 0) {
-      workspace.revealLeaf(existingLeaves[0]);
+      await workspace.revealLeaf(existingLeaves[0]);
       return;
     }
 
     // Open as a new tab in the main editor area (not the sidebar)
     const leaf = workspace.getLeaf("tab");
     await leaf.setViewState({ type: NOTER_VIEW_TYPE, active: true });
-    workspace.revealLeaf(leaf);
+    await workspace.revealLeaf(leaf);
   }
 }

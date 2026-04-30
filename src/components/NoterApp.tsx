@@ -24,9 +24,8 @@ import { AudioSettingsModal } from "@/components/notes/AudioSettingsModal";
 import { SbobinaHistoryModal } from "@/components/notes/SbobinaHistoryModal";
 import { SettingsPanel } from "@/components/notes/SettingsPanel";
 import { WorkspaceToolbar } from "@/components/notes/WorkspaceToolbar";
-import { MarkdownEditor } from "@/components/MarkdownEditor";
 import type { MarkdownEditorController } from "@/components/MarkdownEditor";
-import { countGapMarkers, extractNoterImagePaths } from "@/lib/format";
+import { countGapMarkers } from "@/lib/format";
 import { getSubjectColor } from "@/lib/colors";
 import type { Subject } from "@/lib/types";
 
@@ -76,7 +75,7 @@ export function NoterApp({ plugin }: Props) {
     if (activeSubject) {
       void sbobinaHook.loadSbobina(activeSubject);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reload only when the selected subject id changes; the hook object identity is not relevant here
   }, [activeSubject?.id]);
 
   // ─── Deploy hook ─────────────────────────────────────────────────────────────
@@ -122,8 +121,8 @@ export function NoterApp({ plugin }: Props) {
     phase: deployHook.phase,
     subjects,
     enabled: true,
-    onDeploy: handleDeploy,
-    onSave: handleSave,
+    onDeploy: () => void handleDeploy(),
+    onSave: () => void handleSave(),
     onCancel: handleCancel,
     onSwitchSubject: (s) => void switchSubject(s),
   });
@@ -210,9 +209,11 @@ export function NoterApp({ plugin }: Props) {
         subjects={subjects}
         activeSubjectId={activeSubjectId}
         onSwitch={(s) => void switchSubject(s)}
-        onAddSubject={async (name, short) => {
-          const s = await subjectsHook.addSubject(name, short);
-          void switchSubject(s);
+        onAddSubject={(name, short) => {
+          void (async () => {
+            const s = await subjectsHook.addSubject(name, short);
+            await switchSubject(s);
+          })();
         }}
         onSettings={() => setShowSettings(true)}
       />
@@ -226,8 +227,8 @@ export function NoterApp({ plugin }: Props) {
         isProcessing={deployHook.isProcessing}
         onModeChange={(m) => void handleWorkspaceModeChange(m)}
         onSbobinaViewChange={setSbobinaView}
-        onDeploy={handleDeploy}
-        onSave={handleSave}
+        onDeploy={() => void handleDeploy()}
+        onSave={() => void handleSave()}
         onCancel={handleCancel}
         onToggleDictionary={() => setShowDictionary((v) => !v)}
         onToggleTerminal={() => setShowTerminal((v) => !v)}
@@ -248,7 +249,7 @@ export function NoterApp({ plugin }: Props) {
               onChange={(v) =>
                 activeSubject && handleNotesChange(activeSubject.id, v)
               }
-              onImagePaste={handleImagePaste}
+              onImagePaste={(file) => void handleImagePaste(file)}
               editorControllerRef={editorControllerRef}
             >
               {/* Audio recorder lives inside notes workspace */}
@@ -268,7 +269,7 @@ export function NoterApp({ plugin }: Props) {
               content={currentSbobina}
               view={sbobinaView}
               concepts={conceptsHook.concepts}
-              onChange={handleManualSbobinaSave}
+              onChange={(content) => void handleManualSbobinaSave(content)}
             />
           )}
         </div>
@@ -280,9 +281,9 @@ export function NoterApp({ plugin }: Props) {
             existingSbobina={currentSbobina}
             pendingBlock={deployHook.pendingResult.lessonBlock}
             proposedConcepts={deployHook.pendingResult.nuovi_concetti}
-            onSave={handleSave}
+            onSave={() => void handleSave()}
             onCancel={handleCancel}
-            onRegenerateRequest={handleDeploy}
+            onRegenerateRequest={() => void handleDeploy()}
             isRegenerating={deployHook.isProcessing}
           />
         )}
@@ -307,9 +308,11 @@ export function NoterApp({ plugin }: Props) {
         <SbobinaHistoryModal
           subject={activeSubject}
           history={sbobinaHook.getHistory(activeSubject.id)}
-          onRestore={async (entry) => {
-            await sbobinaHook.restoreFromHistory(activeSubject, entry);
-            setShowHistory(false);
+          onRestore={(entry) => {
+            void (async () => {
+              await sbobinaHook.restoreFromHistory(activeSubject, entry);
+              setShowHistory(false);
+            })();
           }}
           onClose={() => setShowHistory(false)}
         />
@@ -319,11 +322,13 @@ export function NoterApp({ plugin }: Props) {
         <AudioSettingsModal
           plugin={plugin}
           onClose={() => setShowAudioSettings(false)}
-          onConfirm={async () => {
-            plugin.settings.audioRecordingEnabled = true;
-            plugin.settings.audioDisclaimerAcknowledged = true;
-            await plugin.saveData(plugin.settings);
-            setShowAudioSettings(false);
+          onConfirm={() => {
+            void (async () => {
+              plugin.settings.audioRecordingEnabled = true;
+              plugin.settings.audioDisclaimerAcknowledged = true;
+              await plugin.saveData(plugin.settings);
+              setShowAudioSettings(false);
+            })();
           }}
         />
       )}
@@ -333,8 +338,8 @@ export function NoterApp({ plugin }: Props) {
           plugin={plugin}
           subjects={subjects}
           concepts={conceptsHook.concepts}
-          onAddSubject={async (name, short) => {
-            await subjectsHook.addSubject(name, short);
+          onAddSubject={(name, short) => {
+            void subjectsHook.addSubject(name, short);
           }}
           onDeleteSubject={subjectsHook.deleteSubject}
           onDeleteConcept={conceptsHook.deleteConcept}
@@ -348,9 +353,9 @@ export function NoterApp({ plugin }: Props) {
         type="file"
         accept="image/*"
         className="hidden"
-        onChange={async (e) => {
+        onChange={(e) => {
           const file = e.target.files?.[0];
-          if (file) await handleImagePaste(file);
+          if (file) void handleImagePaste(file);
           e.target.value = "";
         }}
       />

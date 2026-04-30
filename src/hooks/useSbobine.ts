@@ -10,7 +10,7 @@
 
 import { useState, useCallback } from "react";
 import { normalizePath } from "obsidian";
-import type { Subject, LogLine, SbobinaHistoryEntry } from "@/lib/types";
+import type { Subject, LogLine } from "@/lib/types";
 import {
   sanitizeFileName,
   buildLessonArchiveFilename,
@@ -59,7 +59,7 @@ export function useSbobine(
       setSbobine((prev) => ({ ...prev, [subject.id]: content }));
       return content;
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- depend on the stable plugin instance; sbobinaPath is a local helper derived from current plugin settings
     [plugin]
   );
 
@@ -97,7 +97,7 @@ export function useSbobine(
         setIsSaving(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- depend on plugin and log; ensureDir and appendHistory are local helpers and do not need to retrigger this callback
     [plugin, log]
   );
 
@@ -126,7 +126,7 @@ export function useSbobine(
       await saveSbobina(subject, updated, "deploy");
       return updated;
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keep the callback tied to plugin, load/save handlers, and log; archivePath is a local helper derived from plugin settings
     [plugin, loadSbobina, saveSbobina, log]
   );
 

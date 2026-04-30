@@ -28,14 +28,14 @@ export class NoterView extends ItemView {
   }
 
   getDisplayText(): string {
-    return "noter";
+    return "Noter";
   }
 
   getIcon(): string {
     return "pencil";
   }
 
-  async onOpen(): Promise<void> {
+  onOpen(): void {
     // containerEl.children[1] is the content area (children[0] is the header)
     const container = this.containerEl.children[1] as HTMLElement;
     container.empty();
@@ -47,7 +47,7 @@ export class NoterView extends ItemView {
     );
   }
 
-  async onClose(): Promise<void> {
+  onClose(): void {
     // Unmount React to clean up all hooks and subscriptions
     this.root?.unmount();
     this.root = null;

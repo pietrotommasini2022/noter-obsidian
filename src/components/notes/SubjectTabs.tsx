@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import type { Subject } from "@/lib/types";
 import { getSubjectColor } from "@/lib/colors";
 

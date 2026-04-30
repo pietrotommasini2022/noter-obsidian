@@ -11,7 +11,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { normalizePath } from "obsidian";
-import type { Transcript, TranscriptSegment, Subject, LogLine } from "@/lib/types";
+import type { Transcript, Subject, LogLine } from "@/lib/types";
 import { callGeminiMultimodal } from "@/GeminiClient";
 import type { NoterPlugin } from "@/types/plugin";
 
@@ -162,7 +162,7 @@ export function useTranscripts(plugin: NoterPlugin, log: (msg: string, type?: Lo
         }
       });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- depend on plugin and log; recorder refs and local helpers are managed outside React dependency tracking
     [plugin, log]
   );
 
