@@ -75,8 +75,8 @@ Notes/
 ## Development
 
 ```bash
-git clone https://github.com/pietrotommasini2022/noter
-cd noter
+git clone https://github.com/pietrotommasini2022/noter-obsidian
+cd noter-obsidian
 npm install --legacy-peer-deps
 
 # Development (watch mode + auto-copy to test vault)
