@@ -17,7 +17,12 @@ function formatDuration(seconds: number): string {
   return `${m}:${s}`;
 }
 
-export function AudioRecorder({ plugin, subject, transcriptsHook, onRequireConsent }: Props) {
+export function AudioRecorder({
+  plugin,
+  subject,
+  transcriptsHook,
+  onRequireConsent,
+}: Props) {
   const {
     recorderStatus,
     durationSeconds,
@@ -51,48 +56,63 @@ export function AudioRecorder({ plugin, subject, transcriptsHook, onRequireConse
   };
 
   return (
-    <div className="flex items-center gap-2 border-t border-[var(--noter-border)] bg-[var(--noter-surface)] px-3 py-1.5">
-      {/* Record / Pause / Resume button */}
+    <div
+      className="flex items-center gap-2 shrink-0"
+      style={{
+        borderTop: "1px solid var(--noter-border)",
+        background: "var(--noter-surface)",
+        padding: "8px 12px",
+      }}
+    >
       <button
         type="button"
         onClick={() => void handleToggle()}
         disabled={recorderStatus === "processing"}
-        className={`noter-btn font-mono text-[11px] ${
+        className={`noter-btn ${
           recorderStatus === "recording"
-            ? "text-red-400 border-red-800"
+            ? "noter-btn-danger"
             : recorderStatus === "paused"
-            ? "text-amber-400 border-amber-800"
+            ? "noter-pill-warn"
             : ""
         }`}
+        style={
+          recorderStatus === "paused"
+            ? { borderColor: "#d8a059", color: "#d8a059" }
+            : undefined
+        }
       >
-        {recorderStatus === "idle" && "⏺ Rec"}
+        {recorderStatus === "idle" && "⏺ Record"}
         {recorderStatus === "recording" && `⏸ ${formatDuration(durationSeconds)}`}
         {recorderStatus === "paused" && `▶ ${formatDuration(durationSeconds)}`}
-        {recorderStatus === "processing" && "⏳ Transcribing..."}
+        {recorderStatus === "processing" && "⏳ Transcribing…"}
       </button>
 
-      {/* Stop button */}
       {(recorderStatus === "recording" || recorderStatus === "paused") && (
         <>
           <button
             type="button"
             onClick={() => void handleStop()}
-            className="noter-btn font-mono text-[11px] text-green-400 border-green-800"
+            className="noter-btn noter-btn-save"
           >
-            ⏹ Stop + Transcribe
+            ⏹ Stop & transcribe
           </button>
           <button
             type="button"
             onClick={cancelRecording}
-            className="noter-btn font-mono text-[11px] text-[var(--noter-text-dim)]"
+            className="noter-btn noter-btn-ghost"
           >
-            × Cancel
+            Cancel
           </button>
         </>
       )}
 
       {recorderError && (
-        <span className="font-mono text-[10px] text-red-400">{recorderError}</span>
+        <span
+          className="noter-help"
+          style={{ color: "#d97a7a", marginLeft: "auto" }}
+        >
+          {recorderError}
+        </span>
       )}
     </div>
   );

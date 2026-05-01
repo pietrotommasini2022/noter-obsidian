@@ -16,49 +16,84 @@ import { createTheme } from "@uiw/codemirror-themes";
 import { tags as t } from "@lezer/highlight";
 import { EditorSelection, RangeSetBuilder } from "@codemirror/state";
 import { Decoration, type DecorationSet, ViewPlugin, type ViewUpdate } from "@codemirror/view";
+import {
+  DICTIONARY_TERMS,
+  DICTIONARY_LINE_PATTERN,
+  DICTIONARY_BY_TOKEN,
+} from "@/lib/dictionary";
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
 
 const noterTheme = createTheme({
+  // Obsidian itself can be in dark or light mode — we let the CSS variables
+  // resolve the actual colors. CodeMirror's `theme` field below is just a
+  // hint for built-in scrollbar styling, so we keep it on "dark" but the
+  // real colors come from the user's Obsidian theme.
   theme: "dark",
   settings: {
-    background: "var(--noter-bg, #0f0f0d)",
-    foreground: "var(--noter-text, #e8e4d8)",
-    caret: "var(--noter-accent, #7c6f5a)",
-    selection: "var(--noter-border, #2a2a26)",
-    selectionMatch: "var(--noter-border, #2a2a26)",
-    lineHighlight: "var(--noter-surface, #161614)",
-    gutterBackground: "var(--noter-bg, #0f0f0d)",
-    gutterForeground: "var(--noter-text-dim, #4a4a44)",
+    background: "var(--noter-bg)",
+    foreground: "var(--noter-text)",
+    caret: "var(--noter-accent)",
+    selection: "var(--noter-hover)",
+    selectionMatch: "var(--noter-hover)",
+    lineHighlight: "var(--noter-surface)",
+    gutterBackground: "var(--noter-bg)",
+    gutterForeground: "var(--noter-text-faint)",
     gutterBorder: "transparent",
-    fontFamily: "'JetBrains Mono', monospace",
+    fontFamily: "var(--noter-font-mono)",
   },
   styles: [
-    { tag: [t.heading1, t.heading2], color: "var(--noter-accent, #7c6f5a)", fontWeight: "bold" },
-    { tag: t.heading3, color: "var(--noter-text, #e8e4d8)", fontWeight: "600" },
-    { tag: [t.heading4, t.heading5, t.heading6], color: "var(--noter-text-dim, #4a4a44)" },
+    { tag: [t.heading1, t.heading2], color: "var(--noter-accent)", fontWeight: "bold" },
+    { tag: t.heading3, color: "var(--noter-text)", fontWeight: "600" },
+    { tag: [t.heading4, t.heading5, t.heading6], color: "var(--noter-text-dim)" },
     { tag: t.strong, fontWeight: "bold" },
     { tag: t.emphasis, fontStyle: "italic" },
-    { tag: t.link, color: "#7c9bb5" },
-    { tag: t.url, color: "#7c9bb5" },
-    { tag: t.monospace, fontFamily: "'JetBrains Mono', monospace" },
-    { tag: t.quote, fontStyle: "italic", color: "var(--noter-text-dim, #4a4a44)" },
+    { tag: t.link, color: "var(--noter-accent)" },
+    { tag: t.url, color: "var(--noter-accent)" },
+    { tag: t.monospace, fontFamily: "var(--noter-font-mono)" },
+    { tag: t.quote, fontStyle: "italic", color: "var(--noter-text-dim)" },
   ],
 });
 
 // ─── Dictionary marker highlight extension ────────────────────────────────────
 
-const dictionaryTheme = EditorView.theme({
-  "& .cm-dict-gap":        { backgroundColor: "rgba(196,135,70,.15)", border: "1px solid rgba(196,135,70,.4)", borderRadius: "2px", color: "#c98746", padding: "0 2px" },
-  "& .cm-dict-clarify":    { backgroundColor: "rgba(124,155,181,.15)", border: "1px solid rgba(124,155,181,.4)", borderRadius: "2px", color: "#7c9bb5", padding: "0 2px" },
-  "& .cm-dict-important":  { backgroundColor: "rgba(201,112,112,.15)", border: "1px solid rgba(201,112,112,.4)", borderRadius: "2px", color: "#c97070", padding: "0 2px" },
-  "& .cm-dict-definition": { backgroundColor: "rgba(109,187,138,.15)", border: "1px solid rgba(109,187,138,.4)", borderRadius: "2px", color: "#6dbb8a", padding: "0 2px" },
-  "& .cm-dict-link":       { backgroundColor: "rgba(124,155,181,.15)", border: "1px solid rgba(124,155,181,.4)", borderRadius: "2px", color: "#7c9bb5", padding: "0 2px" },
-});
+/** Convert a #rrggbb hex string to "r,g,b" so we can compose rgba() at runtime. */
+function hexToRgbTriplet(hex: string): string {
+  const m = hex.replace(/^#/, "");
+  const r = parseInt(m.substring(0, 2), 16);
+  const g = parseInt(m.substring(2, 4), 16);
+  const b = parseInt(m.substring(4, 6), 16);
+  return `${r},${g},${b}`;
+}
 
-const dictionaryLinePattern = /^(\s*)(def:|link:|gap:|clar:|imp:|exam:|ex:|todo:)/;
+/**
+ * Theme is built from DICTIONARY_TERMS so that classes and colors can never
+ * drift out of sync with the dictionary again. Background opacity bumped from
+ * .15 to .25 and border from .4 to .6 to make the highlight readable on the
+ * dark Obsidian background — the previous values were nearly invisible.
+ */
+const dictionaryTheme = EditorView.theme(
+  Object.fromEntries(
+    // Deduplicate by cssClass — multiple tokens (imp/exam) can share one class.
+    Array.from(
+      new Map(DICTIONARY_TERMS.map((term) => [term.cssClass, term])).values()
+    ).map((term) => {
+      const rgb = hexToRgbTriplet(term.color);
+      return [
+        `& .${term.cssClass}`,
+        {
+          backgroundColor: `rgba(${rgb},.25)`,
+          border: `1px solid rgba(${rgb},.6)`,
+          borderRadius: "2px",
+          color: term.color,
+          padding: "0 2px",
+        },
+      ];
+    })
+  )
+);
 
 const gapPlugin = ViewPlugin.fromClass(
   class {
@@ -71,16 +106,13 @@ const gapPlugin = ViewPlugin.fromClass(
       const builder = new RangeSetBuilder<Decoration>();
       for (let n = 1; n <= view.state.doc.lines; n++) {
         const line = view.state.doc.line(n);
-        const match = line.text.match(dictionaryLinePattern);
+        const match = line.text.match(DICTIONARY_LINE_PATTERN);
         if (!match) continue;
         const [, indent = "", token = ""] = match;
+        const term = DICTIONARY_BY_TOKEN.get(token);
+        if (!term) continue;
         const from = line.from + indent.length;
-        let cls = "cm-dict-gap";
-        if (token === "def:")                 cls = "cm-dict-definition";
-        else if (token === "link:")           cls = "cm-dict-link";
-        else if (token === "clar:")           cls = "cm-dict-clarify";
-        else if (token === "imp:" || token === "exam:") cls = "cm-dict-important";
-        builder.add(from, line.to, Decoration.mark({ class: cls }));
+        builder.add(from, line.to, Decoration.mark({ class: term.cssClass }));
       }
       return builder.finish();
     }

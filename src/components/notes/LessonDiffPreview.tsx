@@ -43,19 +43,36 @@ export function LessonDiffPreview({
   };
 
   return (
-    <div className="flex w-[380px] shrink-0 flex-col border-l border-[var(--noter-border)] bg-[var(--noter-surface)]">
+    <div
+      className="flex flex-col shrink-0"
+      style={{
+        width: "420px",
+        borderLeft: "1px solid var(--noter-border)",
+        background: "var(--noter-surface)",
+      }}
+    >
 
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--noter-border)] px-4 py-2">
-        <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--noter-text-dim)]">
-          Review — {subject.name}
-        </span>
+      <div
+        className="flex items-center justify-between shrink-0"
+        style={{
+          padding: "12px 16px",
+          borderBottom: "1px solid var(--noter-border)",
+        }}
+      >
+        <div style={{ minWidth: 0 }}>
+          <h2 className="noter-heading">Review</h2>
+          <p className="noter-help" style={{ marginTop: "2px" }}>
+            {subject.name}
+          </p>
+        </div>
         <button
           type="button"
           onClick={onCancel}
-          className="font-mono text-[10px] text-[var(--noter-text-dim)] hover:text-[var(--noter-text)]"
+          className="noter-btn noter-btn-ghost"
+          aria-label="Cancel"
         >
-          × cancel
+          × Cancel
         </button>
       </div>
 
@@ -73,28 +90,65 @@ export function LessonDiffPreview({
 
       {/* Proposed concepts */}
       {proposedConcepts.length > 0 && (
-        <div className="border-t border-[var(--noter-border)] px-4 py-3">
-          <p className="font-mono text-[9px] uppercase tracking-widest text-[var(--noter-text-dim)] mb-2">
+        <div
+          style={{
+            padding: "14px 16px",
+            borderTop: "1px solid var(--noter-border)",
+          }}
+        >
+          <p className="noter-label" style={{ marginBottom: "8px" }}>
             Proposed concepts
           </p>
-          <div className="space-y-1.5">
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             {proposedConcepts.map((c, i) => (
               <button
                 key={c.titolo}
                 type="button"
                 onClick={() => toggleConcept(i)}
-                className={`flex w-full items-start gap-2 border px-2 py-1.5 text-left transition-colors ${
-                  approvedConcepts[i]
-                    ? "border-purple-800 bg-purple-950/20"
-                    : "border-[var(--noter-border)] opacity-40"
-                }`}
+                className="noter-card noter-card-clickable"
+                style={{
+                  textAlign: "left",
+                  alignItems: "flex-start",
+                  borderColor: approvedConcepts[i]
+                    ? "var(--noter-accent)"
+                    : "var(--noter-border)",
+                  opacity: approvedConcepts[i] ? 1 : 0.5,
+                  cursor: "pointer",
+                }}
               >
-                <span className="mt-0.5 shrink-0 font-mono text-[10px] text-purple-400">
+                <span
+                  style={{
+                    marginTop: "2px",
+                    flexShrink: 0,
+                    fontSize: "14px",
+                    color: "var(--noter-accent)",
+                    width: "16px",
+                  }}
+                >
                   {approvedConcepts[i] ? "✓" : "○"}
                 </span>
-                <div>
-                  <p className="font-mono text-[12px] text-[var(--noter-text)]">{c.titolo}</p>
-                  <p className="text-[12px] italic text-[var(--noter-text-dim)]">{c.descrizione}</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p
+                    style={{
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      color: "var(--noter-text)",
+                      margin: 0,
+                    }}
+                  >
+                    {c.titolo}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      lineHeight: 1.5,
+                      color: "var(--noter-text-dim)",
+                      marginTop: "2px",
+                      marginBottom: 0,
+                    }}
+                  >
+                    {c.descrizione}
+                  </p>
                 </div>
               </button>
             ))}
@@ -103,28 +157,36 @@ export function LessonDiffPreview({
       )}
 
       {/* Feedback + regen */}
-      <div className="border-t border-[var(--noter-border)] px-4 py-3">
+      <div
+        style={{
+          padding: "14px 16px",
+          borderTop: "1px solid var(--noter-border)",
+        }}
+      >
         <textarea
           value={feedback}
           onChange={(e) => setFeedback(e.target.value)}
-          placeholder="Feedback for regeneration (optional)..."
+          placeholder="Feedback for regeneration (optional)…"
           rows={2}
-          className="w-full resize-none border border-[var(--noter-border)] bg-[var(--noter-bg)] px-3 py-2 text-[13px] text-[var(--noter-text)] outline-none focus:border-[var(--noter-accent)] placeholder:text-[var(--noter-text-dim)]"
+          className="noter-textarea"
+          style={{ resize: "none" }}
         />
-        <div className="flex gap-2 mt-2">
+        <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
           <button
             type="button"
             onClick={onRegenerateRequest}
             disabled={isRegenerating}
-            className="noter-btn flex-1"
+            className="noter-btn"
+            style={{ flex: 1, justifyContent: "center" }}
           >
-            {isRegenerating ? "Regenerating..." : "Regenerate"}
+            {isRegenerating ? "Regenerating…" : "Regenerate"}
           </button>
           <button
             type="button"
             onClick={onSave}
             disabled={isRegenerating}
-            className="noter-btn noter-btn-save flex-1"
+            className="noter-btn noter-btn-primary"
+            style={{ flex: 1, justifyContent: "center" }}
           >
             Save ✓
           </button>

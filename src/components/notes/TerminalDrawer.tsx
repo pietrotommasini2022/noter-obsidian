@@ -10,40 +10,53 @@ interface Props {
 
 export function TerminalDrawer({ log, onClose, onClear }: Props) {
   return (
-    <div className="flex w-[300px] shrink-0 flex-col border-l border-[var(--noter-border)] bg-[var(--noter-surface)]">
+    <div
+      className="flex flex-col shrink-0"
+      style={{
+        width: "320px",
+        borderLeft: "1px solid var(--noter-border)",
+        background: "var(--noter-surface)",
+      }}
+    >
       {/* Header */}
-      <div className="flex items-center gap-2 border-b border-[var(--noter-border)] px-3 py-2">
-        <span className="font-mono text-[9px] uppercase tracking-widest text-[var(--noter-text-dim)]">
-          Output
-        </span>
+      <div
+        className="flex items-center gap-2 shrink-0"
+        style={{
+          padding: "10px 14px",
+          borderBottom: "1px solid var(--noter-border)",
+        }}
+      >
+        <span className="noter-label">Output</span>
         <button
           type="button"
           onClick={onClear}
-          className="font-mono text-[9px] text-[var(--noter-text-dim)] hover:text-[var(--noter-text)] transition-colors"
+          className="noter-btn noter-btn-ghost"
+          style={{ fontSize: "12px", padding: "2px 8px" }}
         >
           clear
         </button>
         <button
           type="button"
           onClick={onClose}
-          className="ml-auto font-mono text-[9px] text-[var(--noter-text-dim)] hover:text-[var(--noter-text)] transition-colors"
+          className="noter-btn noter-btn-ghost ml-auto"
+          aria-label="Close"
         >
-          × close
+          ×
         </button>
       </div>
 
       {/* Log lines */}
-      <div className="flex-1 overflow-y-auto p-3 font-mono text-[11px] leading-[1.8]">
+      <div className="flex-1 overflow-y-auto noter-terminal" style={{ padding: "12px 14px" }}>
         {log.length === 0 ? (
-          <span className="text-[var(--noter-text-dim)]">
+          <span style={{ color: "var(--noter-text-dim)" }}>
             $ noter ready<span className="terminal-cursor" />
           </span>
         ) : (
           log.map((line, i) =>
             line.type === "spacer" ? (
-              <div key={i} className="h-1" />
+              <div key={i} style={{ height: "4px" }} />
             ) : (
-              <div key={i} className={`${logColors[line.type]}`}>
+              <div key={i} className={logColors[line.type]}>
                 {line.msg}
               </div>
             )

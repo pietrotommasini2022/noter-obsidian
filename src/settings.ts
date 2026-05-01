@@ -25,7 +25,8 @@ export interface NoterPluginSettings {
    * Default: "Notes"
    * Structure inside:
    *   <notesFolder>/<Subject>/<Subject>.md       — main sbobina
-   *   <notesFolder>/<Subject>/Archive/            — per-lesson .md archives
+   *   <notesFolder>/<Subject>/Archive/            — per-lesson AI block archives
+   *   <notesFolder>/<Subject>/RawNotes/           — per-lesson verbatim raw input
    *   <notesFolder>/<Subject>/Images/             — pasted images
    *   <notesFolder>/Audio/                        — recorded audio chunks
    *   <notesFolder>/Concepts/<Title>.md           — concept files
@@ -52,6 +53,15 @@ export interface NoterPluginSettings {
   // ─── Sbobina history (per subject, append-only, last N entries) ─────────────
   sbobinaHistoryBySubject: Record<string, SbobinaHistoryEntry[]>;
 
+  // ─── Raw-notes history (per subject) ───────────────────────────────────────
+  /**
+   * Append-only index of the user's raw notes captured at every successful
+   * deploy. Each entry references a .md file written under
+   * `<Subject>/RawNotes/`; `content` is also stored in data.json so the
+   * History modal can display it without hitting the disk.
+   */
+  rawNotesHistoryBySubject: Record<string, RawNotesHistoryEntry[]>;
+
   // ─── UI state ────────────────────────────────────────────────────────────────
   draft: NoterDraftState;
 
@@ -73,8 +83,21 @@ export interface SbobinaHistoryEntry {
   created_at: string;
 }
 
+export interface RawNotesHistoryEntry {
+  id: string;
+  subject_id: string;
+  /** Verbatim copy of the raw notes the user wrote before pressing Deploy. */
+  content: string;
+  /** Vault-relative path where the .md file was written. */
+  file_path: string;
+  created_at: string;
+}
+
 /** Maximum sbobina history entries kept per subject (oldest are pruned). */
 export const MAX_HISTORY_ENTRIES = 20;
+
+/** Maximum raw-notes history entries kept per subject (oldest are pruned). */
+export const MAX_RAW_NOTES_HISTORY_ENTRIES = 50;
 
 // ─── Defaults ────────────────────────────────────────────────────────────────
 
@@ -87,6 +110,7 @@ export const DEFAULT_SETTINGS: NoterPluginSettings = {
   summariesBySubject: {},
   deployCountBySubject: {},
   sbobinaHistoryBySubject: {},
+  rawNotesHistoryBySubject: {},
   draft: {
     activeSubjectId: null,
     workspaceMode: "notes",

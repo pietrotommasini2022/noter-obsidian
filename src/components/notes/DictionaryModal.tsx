@@ -7,29 +7,73 @@ interface Props {
 
 export function DictionaryModal({ onClose }: Props) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="flex max-h-[70vh] w-full max-w-md flex-col border border-[var(--noter-border)] bg-[var(--noter-surface)] shadow-2xl">
-        <div className="flex items-center justify-between border-b border-[var(--noter-border)] px-5 py-3">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--noter-text-dim)]">
-            Vocabulary markers
-          </span>
+    <div className="noter-modal-overlay">
+      <div className="noter-modal" style={{ maxWidth: "560px" }}>
+
+        <div className="noter-modal-header">
+          <h2 className="noter-heading">Vocabulary markers</h2>
           <button
             type="button"
             onClick={onClose}
-            className="font-mono text-[11px] text-[var(--noter-text-dim)] hover:text-[var(--noter-text)]"
+            className="noter-btn noter-btn-ghost"
+            aria-label="Close"
           >
-            × close
+            ×
           </button>
         </div>
-        <div className="overflow-y-auto px-5 py-4 space-y-4">
+
+        <div className="noter-modal-body" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {DICTIONARY_TERMS.map((term) => (
-            <div key={term.token} className="border-l-2 border-[var(--noter-border)] pl-3">
-              <div className="flex items-center gap-2 mb-1">
-                <code className="font-mono text-[12px] text-amber-400">{term.token}</code>
-                <span className="text-[12px] text-[var(--noter-text-dim)]">{term.label}</span>
+            <div
+              key={term.token + term.label}
+              style={{
+                paddingLeft: "12px",
+                borderLeft: `3px solid ${term.color}`,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "4px" }}>
+                <code
+                  style={{
+                    fontFamily: "var(--noter-font-mono)",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    color: term.color,
+                    background: "transparent",
+                    padding: 0,
+                  }}
+                >
+                  {term.token}
+                </code>
+                <span
+                  style={{
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    color: "var(--noter-text)",
+                  }}
+                >
+                  {term.label}
+                </span>
               </div>
-              <p className="text-[13px] text-[var(--noter-text)]">{term.behavior}</p>
-              <p className="mt-1 font-mono text-[11px] italic text-[var(--noter-text-dim)]">
+              <p
+                style={{
+                  fontSize: "13px",
+                  lineHeight: 1.5,
+                  color: "var(--noter-text)",
+                  margin: 0,
+                }}
+              >
+                {term.behavior}
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--noter-font-mono)",
+                  fontSize: "12px",
+                  fontStyle: "italic",
+                  color: "var(--noter-text-dim)",
+                  marginTop: "6px",
+                  marginBottom: 0,
+                }}
+              >
                 {term.example}
               </p>
             </div>

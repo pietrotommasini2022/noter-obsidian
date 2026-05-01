@@ -9,28 +9,53 @@ interface Props {
 
 export function AudioSettingsModal({ onConfirm, onClose }: Props) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="flex w-full max-w-sm flex-col border border-[var(--noter-border)] bg-[var(--noter-surface)] shadow-2xl p-6 gap-4">
-        <h2 className="font-mono text-[13px] uppercase tracking-widest text-[var(--noter-text)]">
-          Audio recording
-        </h2>
-        <p className="text-[13px] leading-relaxed text-[var(--noter-text-dim)]">
-          noter will record your lecture audio and send it to Gemini for
-          transcription using your API key. Audio chunks are saved locally in
-          your vault under <code className="font-mono text-[12px]">Notes/Audio/</code>.
-        </p>
-        <p className="text-[13px] leading-relaxed text-[var(--noter-text-dim)]">
-          Make sure you have permission to record in your location and comply
-          with your institution's policies.
-        </p>
-        <div className="flex gap-2 pt-2">
-          <button type="button" onClick={onClose} className="noter-btn flex-1">
+    <div className="noter-modal-overlay">
+      <div className="noter-modal" style={{ maxWidth: "440px" }}>
+
+        <div className="noter-modal-header">
+          <h2 className="noter-heading">Audio recording</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="noter-btn noter-btn-ghost"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        <div
+          className="noter-modal-body"
+          style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+        >
+          <p style={{ fontSize: "14px", lineHeight: 1.55, color: "var(--noter-text)", margin: 0 }}>
+            noter will record your lecture audio and send it to Gemini for
+            transcription using your API key. Audio chunks are saved locally
+            in your vault under <code>Notes/Audio/</code>.
+          </p>
+          <p
+            className="noter-help"
+            style={{ margin: 0 }}
+          >
+            Make sure you have permission to record in your location and
+            comply with your institution's policies.
+          </p>
+        </div>
+
+        <div className="noter-modal-footer">
+          <button
+            type="button"
+            onClick={onClose}
+            className="noter-btn"
+            style={{ flex: 1, justifyContent: "center" }}
+          >
             Cancel
           </button>
           <button
             type="button"
             onClick={() => void onConfirm()}
-            className="noter-btn noter-btn-save flex-1"
+            className="noter-btn noter-btn-primary"
+            style={{ flex: 1, justifyContent: "center" }}
           >
             Enable recording
           </button>

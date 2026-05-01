@@ -1,26 +1,40 @@
 @import "tailwindcss";
 
 /*
-  Scope all Tailwind utility classes under .noter-plugin-container
-  to avoid resetting or conflicting with Obsidian's global styles.
+  Foundation tokens for the noter plugin.
+
+  All colors and fonts flow through Obsidian's CSS variables — the plugin
+  inherits the user's Obsidian theme automatically (light or dark, accent
+  color, font choices). The `--noter-*` aliases are kept only so existing
+  Tailwind arbitrary-value selectors (e.g. `bg-[var(--noter-bg)]`) keep
+  working without a sweeping rename.
 */
 @layer base {
   .noter-plugin-container {
-    /* Typography */
-    --font-body: "Crimson Pro", Georgia, serif;
-    --font-mono: "JetBrains Mono", "Fira Code", monospace;
+    /* Backgrounds */
+    --noter-bg:           var(--background-primary);
+    --noter-surface:      var(--background-secondary);
+    --noter-surface-alt:  var(--background-secondary-alt, var(--background-secondary));
+    --noter-hover:        var(--background-modifier-hover);
 
-    /* Colors — fall back to Obsidian CSS variables when available */
-    --noter-bg:          var(--background-primary, #0f0f0d);
-    --noter-surface:     var(--background-secondary, #161614);
-    --noter-border:      var(--background-modifier-border, #2a2a26);
-    --noter-text:        var(--text-normal, #e8e4d8);
-    --noter-text-dim:    var(--text-muted, #4a4a44);
-    --noter-accent:      var(--interactive-accent, #7c6f5a);
+    /* Borders */
+    --noter-border:       var(--background-modifier-border);
+    --noter-border-hover: var(--background-modifier-border-hover, var(--background-modifier-border));
+
+    /* Text */
+    --noter-text:         var(--text-normal);
+    --noter-text-dim:     var(--text-muted);
+    --noter-text-faint:   var(--text-faint);
+    --noter-accent:       var(--interactive-accent);
+    --noter-accent-hover: var(--interactive-accent-hover, var(--interactive-accent));
+    --noter-on-accent:    var(--text-on-accent);
+
+    /* Fonts: native Obsidian — interface for UI, text for prose, mono for code */
+    --noter-font-ui:    var(--font-interface);
+    --noter-font-text:  var(--font-text);
+    --noter-font-mono:  var(--font-monospace);
   }
 }
 
-/* Google Fonts — loaded dynamically so they work both online and in the bundle */
-@import url("https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap");
-
+/* Layered global styles (utilities, components). */
 @import "./globals.css";

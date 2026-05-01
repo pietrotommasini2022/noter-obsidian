@@ -37,13 +37,20 @@ export function SbobinaPreview({
 
   if (!subject) {
     return (
-      <div className="flex flex-1 items-center justify-center text-[var(--noter-text-dim)] text-[14px] italic">
+      <div
+        className="flex flex-1 items-center justify-center"
+        style={{
+          color: "var(--noter-text-dim)",
+          fontSize: "14px",
+          fontStyle: "italic",
+        }}
+      >
         No subject selected
       </div>
     );
   }
 
-  const paddingClass = compact ? "p-3" : "p-6";
+  const padding = compact ? "16px" : "28px 32px";
 
   if (view === "edit") {
     return (
@@ -53,7 +60,17 @@ export function SbobinaPreview({
           setEditContent(e.target.value);
           onChange(e.target.value);
         }}
-        className={`h-full w-full resize-none bg-[var(--noter-bg)] ${paddingClass} font-mono text-[13px] leading-relaxed text-[var(--noter-text)] outline-none`}
+        className="h-full w-full noter-textarea"
+        style={{
+          resize: "none",
+          padding,
+          fontFamily: "var(--noter-font-mono)",
+          fontSize: "14px",
+          lineHeight: 1.65,
+          background: "var(--noter-bg)",
+          border: "none",
+          borderRadius: 0,
+        }}
         placeholder={`# ${subject.name}\n\nNo sbobina yet. Press Deploy to generate the first lesson block.`}
       />
     );
@@ -64,10 +81,11 @@ export function SbobinaPreview({
 
   return (
     <div
-      className={`h-full w-full overflow-y-auto bg-[var(--noter-bg)] ${paddingClass}`}
+      className="h-full w-full overflow-y-auto"
+      style={{ background: "var(--noter-bg)", padding }}
     >
       {content.trim() ? (
-        <div className="prose prose-invert max-w-none prose-sm [&_.wikilink]:text-purple-400 [&_.wikilink]:underline [&_mark]:bg-yellow-800/40 [&_mark]:text-yellow-200 [&_mark]:px-0.5">
+        <div className="noter-prose">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}
@@ -76,7 +94,11 @@ export function SbobinaPreview({
                 <img
                   src={src}
                   alt={alt ?? ""}
-                  className="max-w-full rounded border border-[var(--noter-border)]"
+                  style={{
+                    maxWidth: "100%",
+                    borderRadius: "6px",
+                    border: "1px solid var(--noter-border)",
+                  }}
                 />
               ),
             }}
@@ -85,7 +107,13 @@ export function SbobinaPreview({
           </ReactMarkdown>
         </div>
       ) : (
-        <p className="text-[14px] italic text-[var(--noter-text-dim)]">
+        <p
+          style={{
+            color: "var(--noter-text-dim)",
+            fontStyle: "italic",
+            fontSize: "14px",
+          }}
+        >
           No sbobina yet. Press Deploy to generate the first lesson block.
         </p>
       )}

@@ -164,7 +164,10 @@ export function useDeploy({
         log(`Proposed ${nuovi_concetti.length} new concept(s)`, "concept");
       }
 
-      setPendingResult({ lessonBlock, nuovi_concetti });
+      // Snapshot the raw notes alongside the AI output so the eventual Save
+      // can persist the EXACT input that produced this lesson block, even if
+      // the user keeps editing the notes while the preview is on screen.
+      setPendingResult({ lessonBlock, nuovi_concetti, rawNotes });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       log(`Deploy failed: ${msg}`, "error");
@@ -179,10 +182,21 @@ export function useDeploy({
   const handleSave = useCallback(async () => {
     if (!activeSubject || !pendingResult) return;
 
-    const { lessonBlock, nuovi_concetti } = pendingResult;
+    const { lessonBlock, nuovi_concetti, rawNotes: snapshottedNotes } =
+      pendingResult;
     const apiKey = plugin.settings.geminiApiKey;
 
     try {
+      // Persist the user's exact input BEFORE clearing the editor. We use the
+      // snapshot taken at Deploy time rather than the current `notes[id]` so
+      // late edits to the textarea after Deploy aren't silently archived as
+      // if they were what produced the AI output.
+      const rawNotesToArchive =
+        snapshottedNotes ?? notes[activeSubject.id] ?? "";
+      if (rawNotesToArchive.trim()) {
+        await sbobinaHook.saveRawNotes(activeSubject, rawNotesToArchive);
+      }
+
       // Append lesson block to vault sbobina
       const updatedSbobina = await sbobinaHook.appendLessonBlock(activeSubject, lessonBlock);
       await sbobinaHook.incrementDeployCount(activeSubject.id);
@@ -213,7 +227,7 @@ export function useDeploy({
       const msg = err instanceof Error ? err.message : String(err);
       log(`Save failed: ${msg}`, "error");
     }
-  }, [plugin, activeSubject, pendingResult, log, sbobinaHook, conceptsHook, onNotesCleared]);
+  }, [plugin, activeSubject, pendingResult, notes, log, sbobinaHook, conceptsHook, onNotesCleared]);
 
   // ─── Cancel ─────────────────────────────────────────────────────────────────
 

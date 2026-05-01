@@ -202,7 +202,7 @@ export function NoterApp({ plugin }: Props) {
   // ─── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="noter-plugin-container flex flex-col h-full bg-[var(--noter-bg)] text-[var(--noter-text)] font-[var(--font-body)] overflow-hidden">
+    <div className="noter-plugin-container flex flex-col h-full overflow-hidden">
 
       {/* Subject tabs */}
       <SubjectTabs
@@ -308,12 +308,14 @@ export function NoterApp({ plugin }: Props) {
         <SbobinaHistoryModal
           subject={activeSubject}
           history={sbobinaHook.getHistory(activeSubject.id)}
+          rawNotesHistory={sbobinaHook.getRawNotesHistory(activeSubject.id)}
           onRestore={(entry) => {
             void (async () => {
               await sbobinaHook.restoreFromHistory(activeSubject, entry);
               setShowHistory(false);
             })();
           }}
+          onOpenRawNotesFile={(path) => sbobinaHook.openRawNotesFile(path)}
           onClose={() => setShowHistory(false)}
         />
       )}
@@ -342,6 +344,8 @@ export function NoterApp({ plugin }: Props) {
             void subjectsHook.addSubject(name, short);
           }}
           onDeleteSubject={subjectsHook.deleteSubject}
+          onScanFolderForCandidates={subjectsHook.scanFolderForCandidates}
+          onAddSubjectsByNames={subjectsHook.addSubjectsByNames}
           onDeleteConcept={conceptsHook.deleteConcept}
           onClose={() => setShowSettings(false)}
         />

@@ -17,6 +17,13 @@ export interface DeployResult {
   lessonBlock: string;
   nuovi_concetti: Concept[];
   baseSbobina?: string;
+  /**
+   * Snapshot of the user's raw notes at the moment Deploy was pressed.
+   * Persisted on Save so the original input is never lost when the editor
+   * is cleared. Allows the History modal to surface the raw notes alongside
+   * the AI-generated sbobina versions.
+   */
+  rawNotes?: string;
 }
 
 export interface LogLine {

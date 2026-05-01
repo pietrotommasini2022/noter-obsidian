@@ -25,8 +25,17 @@ export function NotesWorkspace({
 }: Props) {
   if (!subject) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 bg-[var(--noter-bg)]">
-        <p className="text-[14px] italic text-[var(--noter-text-dim)]">
+      <div
+        className="flex flex-1 flex-col items-center justify-center gap-3"
+        style={{ background: "var(--noter-bg)" }}
+      >
+        <p
+          style={{
+            fontSize: "14px",
+            fontStyle: "italic",
+            color: "var(--noter-text-dim)",
+          }}
+        >
           No subject selected. Add one in Settings.
         </p>
       </div>
@@ -34,13 +43,16 @@ export function NotesWorkspace({
   }
 
   return (
-    <div className="flex flex-1 flex-col min-h-0 bg-[var(--noter-bg)]">
+    <div
+      className="flex flex-1 flex-col min-h-0"
+      style={{ background: "var(--noter-bg)" }}
+    >
       <MarkdownEditor
         value={notes}
         onChange={onChange}
         onImagePaste={onImagePaste}
         controllerRef={editorControllerRef}
-        placeholder={`Raw notes for ${subject.name}...\nUse def:, gap:, imp:, exam: markers.`}
+        placeholder={`Raw notes for ${subject.name}…\nUse def:, gap:, imp:, exam:, ex:, todo:, link:, clar: markers.`}
       />
       {children}
     </div>

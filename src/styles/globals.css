@@ -1,57 +1,519 @@
 /*
-  noter Obsidian Plugin — Global Styles
-  Scoped entirely under .noter-plugin-container to avoid
-  bleeding into Obsidian's native UI.
+  noter — global styles and utility classes.
+
+  Everything is scoped under `.noter-plugin-container` to avoid leaking into
+  the rest of Obsidian. Components consume the utilities defined here
+  (`noter-btn`, `noter-input`, `noter-label`, `noter-modal-*`, `noter-tab*`,
+  `noter-segmented*`) instead of repeating long inline class chains.
 */
 
+/* ── Container ───────────────────────────────────────────────────────────── */
+
 .noter-plugin-container {
-  /* ── Font imports (dynamic for offline/mobile compat) ── */
-  font-family: "Crimson Pro", Georgia, serif;
+  font-family: var(--noter-font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--noter-text);
+  background: var(--noter-bg);
 }
 
-/* ── Shared button classes ── */
-.noter-plugin-container .noter-btn {
-  border: 1px solid var(--noter-border, #2a2a26);
-  background: transparent;
-  color: var(--noter-text-dim, #4a4a44);
-  font-family: "JetBrains Mono", monospace;
+/* ── Typography utilities ────────────────────────────────────────────────── */
+
+/* Small uppercase grouping label ("API Key", "Subjects (3)", etc.) */
+.noter-plugin-container .noter-label {
+  font-family: var(--noter-font-ui);
   font-size: 11px;
-  letter-spacing: 0.05em;
-  padding: 4px 10px;
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--noter-text-dim);
 }
 
-.noter-plugin-container .noter-btn:hover {
-  color: var(--noter-text, #e8e4d8);
-  border-color: var(--noter-text-dim, #4a4a44);
+/* Section / modal heading */
+.noter-plugin-container .noter-heading {
+  font-family: var(--noter-font-ui);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--noter-text);
+  letter-spacing: 0;
+}
+
+/* Helper text under inputs */
+.noter-plugin-container .noter-help {
+  font-family: var(--noter-font-ui);
+  font-size: 12px;
+  color: var(--noter-text-dim);
+  line-height: 1.5;
+}
+
+/* Inline code chip */
+.noter-plugin-container code,
+.noter-plugin-container .noter-code {
+  font-family: var(--noter-font-mono);
+  font-size: 0.92em;
+  background: var(--noter-hover);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+.noter-plugin-container .noter-btn {
+  font-family: var(--noter-font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  padding: 6px 12px;
+  border: 1px solid var(--noter-border);
+  background: var(--noter-surface);
+  color: var(--noter-text);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+
+.noter-plugin-container .noter-btn:hover:not(:disabled) {
+  background: var(--noter-hover);
+  border-color: var(--noter-border-hover);
 }
 
 .noter-plugin-container .noter-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* Compact icon-only button — for emoji/icon toolbar buttons */
+.noter-plugin-container .noter-btn-icon {
+  padding: 6px 8px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Primary CTA — uses Obsidian's accent */
+.noter-plugin-container .noter-btn-primary {
+  background: var(--noter-accent);
+  border-color: var(--noter-accent);
+  color: var(--noter-on-accent);
+}
+.noter-plugin-container .noter-btn-primary:hover:not(:disabled) {
+  background: var(--noter-accent-hover);
+  border-color: var(--noter-accent-hover);
+}
+
+/* Deploy variant — accent-tinted but lighter than primary, takes inline color override */
 .noter-plugin-container .noter-btn-deploy {
-  border-color: var(--noter-accent, #7c6f5a);
-  color: var(--noter-accent, #7c6f5a);
+  border-color: var(--noter-accent);
+  color: var(--noter-accent);
+  background: transparent;
+}
+.noter-plugin-container .noter-btn-deploy:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--noter-accent) 12%, transparent);
 }
 
-.noter-plugin-container .noter-btn-deploy:hover {
-  background: color-mix(in srgb, var(--noter-accent, #7c6f5a) 10%, transparent);
-}
-
+/* Save / confirm — green tint */
 .noter-plugin-container .noter-btn-save {
   border-color: #6dbb8a;
   color: #6dbb8a;
 }
-
-.noter-plugin-container .noter-btn-save:hover {
-  background: rgba(109, 187, 138, 0.1);
+.noter-plugin-container .noter-btn-save:hover:not(:disabled) {
+  background: rgba(109, 187, 138, 0.12);
 }
 
-/* ── Terminal cursor blink ── */
+/* Danger / destructive */
+.noter-plugin-container .noter-btn-danger {
+  color: #d97a7a;
+}
+.noter-plugin-container .noter-btn-danger:hover:not(:disabled) {
+  background: rgba(217, 122, 122, 0.12);
+  border-color: #d97a7a;
+}
+
+/* Subtle ghost button — minimal chrome, used for close buttons / secondary affordances */
+.noter-plugin-container .noter-btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--noter-text-dim);
+  padding: 4px 8px;
+  font-size: 13px;
+}
+.noter-plugin-container .noter-btn-ghost:hover:not(:disabled) {
+  background: var(--noter-hover);
+  color: var(--noter-text);
+  border-color: transparent;
+}
+
+/* ── Inputs ──────────────────────────────────────────────────────────────── */
+
+.noter-plugin-container .noter-input,
+.noter-plugin-container .noter-textarea {
+  width: 100%;
+  font-family: var(--noter-font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px 12px;
+  border: 1px solid var(--noter-border);
+  background: var(--noter-bg);
+  color: var(--noter-text);
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.noter-plugin-container .noter-input:focus,
+.noter-plugin-container .noter-textarea:focus {
+  border-color: var(--noter-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--noter-accent) 25%, transparent);
+}
+
+.noter-plugin-container .noter-input::placeholder,
+.noter-plugin-container .noter-textarea::placeholder {
+  color: var(--noter-text-faint);
+}
+
+.noter-plugin-container .noter-textarea {
+  resize: vertical;
+  font-family: var(--noter-font-text);
+}
+
+/* Inline narrow input (e.g. abbreviation) */
+.noter-plugin-container .noter-input-narrow {
+  width: 80px;
+  font-family: var(--noter-font-mono);
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── Cards / list rows ───────────────────────────────────────────────────── */
+
+.noter-plugin-container .noter-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--noter-border);
+  border-radius: 6px;
+  background: var(--noter-bg);
+}
+
+.noter-plugin-container .noter-card-clickable {
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+.noter-plugin-container .noter-card-clickable:hover {
+  background: var(--noter-hover);
+  border-color: var(--noter-border-hover);
+}
+
+/* ── Modals ──────────────────────────────────────────────────────────────── */
+
+.noter-plugin-container .noter-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 50;
+}
+
+.noter-plugin-container .noter-modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 540px;
+  max-height: 80vh;
+  background: var(--noter-surface);
+  border: 1px solid var(--noter-border);
+  border-radius: 10px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.noter-plugin-container .noter-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--noter-border);
+}
+
+.noter-plugin-container .noter-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.noter-plugin-container .noter-modal-footer {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--noter-border);
+}
+
+/* ── Tabs (subject pills) ────────────────────────────────────────────────── */
+
+.noter-plugin-container .noter-tabbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--noter-border);
+  background: var(--noter-surface);
+  overflow-x: auto;
+}
+
+.noter-plugin-container .noter-tab {
+  font-family: var(--noter-font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--noter-text-dim);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+
+.noter-plugin-container .noter-tab:hover {
+  color: var(--noter-text);
+}
+
+.noter-plugin-container .noter-tab-active {
+  color: var(--noter-text);
+  border-bottom-color: currentColor;
+}
+
+/* ── Segmented control (mode/view switchers) ─────────────────────────────── */
+
+.noter-plugin-container .noter-segmented {
+  display: inline-flex;
+  border: 1px solid var(--noter-border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--noter-bg);
+}
+
+.noter-plugin-container .noter-segmented-item {
+  font-family: var(--noter-font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  background: transparent;
+  border: none;
+  color: var(--noter-text-dim);
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.noter-plugin-container .noter-segmented-item + .noter-segmented-item {
+  border-left: 1px solid var(--noter-border);
+}
+
+.noter-plugin-container .noter-segmented-item:hover {
+  color: var(--noter-text);
+}
+
+.noter-plugin-container .noter-segmented-item-active {
+  background: var(--noter-hover);
+  color: var(--noter-text);
+}
+
+/* ── Toolbar (workspace) ─────────────────────────────────────────────────── */
+
+.noter-plugin-container .noter-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--noter-border);
+  background: var(--noter-surface);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+/* ── Editor & preview ────────────────────────────────────────────────────── */
+
+.noter-plugin-container .noter-editor,
+.noter-plugin-container .noter-editor .cm-editor {
+  height: 100%;
+  min-height: 0;
+}
+
+.noter-plugin-container .noter-editor .cm-scroller {
+  font-family: var(--noter-font-mono);
+  font-size: 14px;
+  line-height: 1.65;
+  padding: 8px 4px;
+}
+
+.noter-plugin-container .noter-editor .cm-content {
+  padding: 6px 8px;
+}
+
+/* ── Prose (rendered markdown) ───────────────────────────────────────────── */
+
+.noter-plugin-container .noter-prose {
+  font-family: var(--noter-font-text);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--noter-text);
+}
+
+.noter-plugin-container .noter-prose h1,
+.noter-plugin-container .noter-prose h2,
+.noter-plugin-container .noter-prose h3,
+.noter-plugin-container .noter-prose h4,
+.noter-plugin-container .noter-prose h5,
+.noter-plugin-container .noter-prose h6 {
+  font-family: var(--noter-font-ui);
+  color: var(--noter-text);
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 1.4em;
+  margin-bottom: 0.5em;
+}
+.noter-plugin-container .noter-prose h1 { font-size: 1.7em; }
+.noter-plugin-container .noter-prose h2 { font-size: 1.4em; }
+.noter-plugin-container .noter-prose h3 { font-size: 1.2em; }
+.noter-plugin-container .noter-prose h4 { font-size: 1.05em; }
+
+.noter-plugin-container .noter-prose p {
+  margin: 0.75em 0;
+}
+
+.noter-plugin-container .noter-prose ul,
+.noter-plugin-container .noter-prose ol {
+  margin: 0.75em 0;
+  padding-left: 1.5em;
+}
+
+.noter-plugin-container .noter-prose li {
+  margin: 0.25em 0;
+}
+
+.noter-plugin-container .noter-prose code {
+  font-family: var(--noter-font-mono);
+  background: var(--noter-hover);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.92em;
+}
+
+.noter-plugin-container .noter-prose pre {
+  background: var(--noter-surface);
+  border: 1px solid var(--noter-border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  overflow-x: auto;
+  font-family: var(--noter-font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.noter-plugin-container .noter-prose pre code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+}
+
+.noter-plugin-container .noter-prose blockquote {
+  border-left: 3px solid var(--noter-border);
+  padding: 4px 12px;
+  margin: 0.75em 0;
+  color: var(--noter-text-dim);
+  font-style: italic;
+}
+
+.noter-plugin-container .noter-prose a {
+  color: var(--noter-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.noter-plugin-container .noter-prose hr {
+  border: none;
+  border-top: 1px solid var(--noter-border);
+  margin: 1.5em 0;
+}
+
+.noter-plugin-container .noter-prose strong {
+  color: var(--noter-text);
+  font-weight: 600;
+}
+
+.noter-plugin-container .noter-prose table {
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 0.95em;
+}
+.noter-plugin-container .noter-prose th,
+.noter-plugin-container .noter-prose td {
+  border: 1px solid var(--noter-border);
+  padding: 6px 10px;
+  text-align: left;
+}
+.noter-plugin-container .noter-prose th {
+  background: var(--noter-surface);
+  font-weight: 600;
+}
+
+/* Wikilink chip in preview */
+.noter-plugin-container .wikilink {
+  color: var(--text-accent, #c084fc);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--text-accent, #c084fc) 50%, transparent);
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+/* ==Highlight== for missing-content markers in preview */
+.noter-plugin-container mark {
+  background-color: color-mix(in srgb, var(--text-accent, #c084fc) 22%, transparent);
+  color: var(--text-accent, #c9a870);
+  padding: 0 4px;
+  border-radius: 3px;
+}
+
+/* ── Status pill (gap count, errors) ─────────────────────────────────────── */
+
+.noter-plugin-container .noter-pill {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--noter-font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  letter-spacing: 0.02em;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.noter-plugin-container .noter-pill-warn  { color: #d8a059; }
+.noter-plugin-container .noter-pill-error { color: #d97a7a; }
+.noter-plugin-container .noter-pill-ok    { color: #6dbb8a; }
+
+/* ── Terminal drawer ─────────────────────────────────────────────────────── */
+
+.noter-plugin-container .noter-terminal {
+  font-family: var(--noter-font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
 .noter-plugin-container .terminal-cursor::after {
   content: "▌";
   animation: noter-blink 1s step-end infinite;
@@ -60,38 +522,22 @@
 
 @keyframes noter-blink {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+  50%      { opacity: 0; }
 }
 
-/* ── CodeMirror editor fill ── */
-.noter-plugin-container .noter-editor,
-.noter-plugin-container .noter-editor .cm-editor {
-  height: 100%;
-  min-height: 0;
-}
+/* ── Scrollbars ──────────────────────────────────────────────────────────── */
 
-.noter-plugin-container .noter-editor .cm-scroller {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 13px;
-  line-height: 1.7;
+.noter-plugin-container ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
-
-/* ── Wikilink chip in preview ── */
-.noter-plugin-container .wikilink {
-  color: #c084fc;
-  text-decoration: underline;
-  cursor: pointer;
+.noter-plugin-container ::-webkit-scrollbar-track {
+  background: transparent;
 }
-
-/* ── Highlighted gaps ==text== ── */
-.noter-plugin-container mark {
-  background-color: rgba(201, 168, 112, 0.25);
-  color: #c9a870;
-  padding: 0 2px;
-  border-radius: 2px;
+.noter-plugin-container ::-webkit-scrollbar-thumb {
+  background: var(--noter-border);
+  border-radius: 4px;
 }
-
-/* ── Thin scrollbars ── */
-.noter-plugin-container ::-webkit-scrollbar { width: 4px; height: 4px; }
-.noter-plugin-container ::-webkit-scrollbar-track { background: transparent; }
-.noter-plugin-container ::-webkit-scrollbar-thumb { background: var(--noter-border, #2a2a26); border-radius: 2px; }
+.noter-plugin-container ::-webkit-scrollbar-thumb:hover {
+  background: var(--noter-border-hover);
+}

@@ -9,7 +9,7 @@
  */
 
 import { useState, useCallback } from "react";
-import { normalizePath } from "obsidian";
+import { normalizePath, TFile } from "obsidian";
 import type { Subject, LogLine } from "@/lib/types";
 import {
   sanitizeFileName,
@@ -17,7 +17,9 @@ import {
 } from "@/lib/format";
 import {
   MAX_HISTORY_ENTRIES,
+  MAX_RAW_NOTES_HISTORY_ENTRIES,
   type SbobinaHistoryEntry as SettingsHistoryEntry,
+  type RawNotesHistoryEntry,
 } from "@/settings";
 import type { NoterPlugin } from "@/types/plugin";
 
@@ -42,6 +44,13 @@ export function useSbobine(
     const base = plugin.settings.notesFolder;
     const filename = buildLessonArchiveFilename(subject.name);
     return normalizePath(`${base}/${folder}/Archive/${filename}`);
+  }
+
+  function rawNotesPath(subject: Subject): string {
+    const folder = sanitizeFileName(subject.name);
+    const base = plugin.settings.notesFolder;
+    const filename = buildLessonArchiveFilename(subject.name);
+    return normalizePath(`${base}/${folder}/RawNotes/${filename}`);
   }
 
   // ─── Load ───────────────────────────────────────────────────────────────────
@@ -147,6 +156,78 @@ export function useSbobine(
     [saveSbobina, log]
   );
 
+  // ─── Raw notes archival ─────────────────────────────────────────────────────
+
+  /**
+   * Persists the user's raw notes for a subject as a timestamped .md file
+   * under `<Subject>/RawNotes/`, and indexes the entry in data.json so the
+   * History modal can list it. Returns the entry that was just written.
+   *
+   * Empty/whitespace-only content is a no-op and returns null.
+   */
+  const saveRawNotes = useCallback(
+    async (
+      subject: Subject,
+      content: string
+    ): Promise<RawNotesHistoryEntry | null> => {
+      if (!content.trim()) return null;
+
+      const path = rawNotesPath(subject);
+      const dir = path.substring(0, path.lastIndexOf("/"));
+      await ensureDir(plugin, dir);
+
+      try {
+        await plugin.app.vault.adapter.write(path, content);
+      } catch (err) {
+        log(`Raw notes archive failed: ${String(err)}`, "warn");
+        return null;
+      }
+
+      const entry: RawNotesHistoryEntry = {
+        id: crypto.randomUUID(),
+        subject_id: subject.id,
+        content,
+        file_path: path,
+        created_at: new Date().toISOString(),
+      };
+      const existing =
+        plugin.settings.rawNotesHistoryBySubject[subject.id] ?? [];
+      plugin.settings.rawNotesHistoryBySubject[subject.id] = [
+        entry,
+        ...existing,
+      ].slice(0, MAX_RAW_NOTES_HISTORY_ENTRIES);
+      await plugin.saveData(plugin.settings);
+
+      log(`Raw notes saved: ${path}`, "info");
+      return entry;
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- rawNotesPath is a local helper derived from current plugin settings
+    [plugin, log]
+  );
+
+  function getRawNotesHistory(subjectId: string): RawNotesHistoryEntry[] {
+    return plugin.settings.rawNotesHistoryBySubject[subjectId] ?? [];
+  }
+
+  /**
+   * Opens a previously saved raw-notes file in a new Obsidian tab. Falls back
+   * to a warning log if the file no longer exists (user may have deleted it
+   * from the file manager).
+   */
+  const openRawNotesFile = useCallback(
+    async (filePath: string): Promise<void> => {
+      const path = normalizePath(filePath);
+      const file = plugin.app.vault.getAbstractFileByPath(path);
+      if (!(file instanceof TFile)) {
+        log(`File no longer exists: ${path}`, "warn");
+        return;
+      }
+      const leaf = plugin.app.workspace.getLeaf("tab");
+      await leaf.openFile(file);
+    },
+    [plugin, log]
+  );
+
   // ─── Summary helpers ────────────────────────────────────────────────────────
 
   function getSummary(subjectId: string): string | null {
@@ -176,6 +257,9 @@ export function useSbobine(
     appendLessonBlock,
     getHistory,
     restoreFromHistory,
+    saveRawNotes,
+    getRawNotesHistory,
+    openRawNotesFile,
     getSummary,
     saveSummary,
     getDeployCount,

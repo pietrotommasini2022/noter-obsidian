@@ -1,5 +1,16 @@
 import type { Concept, TranscriptSegment } from "@/lib/types";
 import { buildGapContextSection } from "@/lib/format";
+import { DICTIONARY_TERMS } from "@/lib/dictionary";
+
+/**
+ * Vocabulary section injected into both the system prompt and the user prompt.
+ * Built from DICTIONARY_TERMS so the AI receives the same rich behavior strings
+ * that are shown to the user in the in-app dictionary modal — keeping the three
+ * surfaces (modal / editor / AI) in sync.
+ */
+const VOCABULARY_SECTION = DICTIONARY_TERMS.map(
+  (term) => `- \`${term.token}\` (${term.label}) — ${term.behavior}`
+).join("\n");
 
 // ─── System prompts ───────────────────────────────────────────────────────────
 
@@ -18,16 +29,10 @@ MANDATORY RULES:
 7. Where you find "gap:", insert the exact placeholder ==MISSING==.
 8. Image blocks marked with "<!-- NOTER-IMAGE" are protected: do not modify, remove, move, or alter the image path.
 9. If you use the audio transcription to complete or clarify a passage, always rewrite the content in a clean academic form. Do not copy the speech verbatim, except for technical terms, formulas, precise definitions, or explicit quotes from the professor.
+10. For \`clar:\` markers specifically, you ARE expected to use your own broader subject knowledge to produce the explanation — do not limit yourself to information already present in the notes or audio.
 
-OPERATIONAL VOCABULARY:
-- def: = definition to be cleaned up
-- link: = possible reference to an existing key concept
-- gap: = hole in the notes, use ==MISSING==
-- clar: = concept to be clarified and integrated contextually
-- imp: = important point to highlight
-- exam: = point to remember well for exams
-- ex: = example to be kept distinct from theory
-- todo: = verification or further study to be kept as an operational note
+OPERATIONAL VOCABULARY (apply these behaviors strictly when you encounter the corresponding marker at the start of a line):
+${VOCABULARY_SECTION}
 
 OUTPUT FORMAT:
 1. Respond only in pure markdown.
@@ -127,15 +132,8 @@ If any of these topics reappear in the notes:
 - add a [[wikilink]] to the existing concept if useful for further study
 - do not create a duplicate if the concept is already present
 
-VOCABULARY TO INTERPRET:
-- def: = definition to be cleaned up
-- link: = possible reference to an existing key concept
-- gap: = hole in the notes, use ==MISSING==
-- clar: = concept to be clarified and integrated contextually
-- imp: = important point to highlight
-- exam: = point to remember well
-- ex: = example to be kept distinct from theory
-- todo: = verification or further study to be kept as an operational note
+VOCABULARY TO INTERPRET (each marker carries a specific instruction — follow it exactly):
+${VOCABULARY_SECTION}
 
 PROTECTED BLOCKS:
 - Lines/blocks marked with "<!-- NOTER-IMAGE" and the relative embed ![[...]] are images: do not modify, move, or rewrite them.
