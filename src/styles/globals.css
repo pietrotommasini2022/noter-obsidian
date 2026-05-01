@@ -258,6 +258,10 @@
   border-top: 1px solid var(--noter-border);
 }
 
+.noter-plugin-container .noter-subject-import-row:hover:not(.noter-subject-import-row-disabled) {
+  background: var(--noter-hover);
+}
+
 /* ── Tabs (subject pills) ────────────────────────────────────────────────── */
 
 .noter-plugin-container .noter-tabbar {

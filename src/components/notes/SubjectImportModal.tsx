@@ -149,6 +149,11 @@ export function SubjectImportModal({
                   return (
                     <label
                       key={name}
+                      className={`noter-subject-import-row${
+                        isAlreadyImported
+                          ? " noter-subject-import-row-disabled"
+                          : ""
+                      }`}
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -158,16 +163,6 @@ export function SubjectImportModal({
                         cursor: isAlreadyImported ? "not-allowed" : "pointer",
                         opacity: isAlreadyImported ? 0.5 : 1,
                         transition: "background-color 0.12s ease",
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isAlreadyImported) {
-                          (e.currentTarget as HTMLElement).style.background =
-                            "var(--noter-hover)";
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.background =
-                          "transparent";
                       }}
                     >
                       <input

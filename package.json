@@ -1,6 +1,6 @@
 {
   "name": "noter",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "AI-powered academic note-taking Obsidian plugin",
   "main": "main.js",
   "scripts": {

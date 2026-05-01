@@ -1,7 +1,7 @@
 {
   "id": "noter",
   "name": "Noter",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "minAppVersion": "1.0.0",
   "description": "AI-powered academic note-taking plugin. Transform raw lecture notes into structured study material using your own Gemini API key.",
   "author": "pietrotommasini",
